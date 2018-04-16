@@ -26,7 +26,33 @@
 		</table>
 	</form>
 	<p id="demo" align="center"></p>
-	<script>
+
+    <hr>
+    
+    <h3> Overview </h3>
+    <p> This tool uses the ‘Address Standardization Web Tool’ from the API of the United States Postal Service to search for an address provided by the user.  The user enters a Street Address and Zip Code into the HTML form.  If found in the USPS database, the Street Address will be corrected to the exact string USPS uses and the fields for City, State, and Zip Code Extension will be populated in the HTML form, letting the user know their search was successful.</p>
+    
+    <h3> How it Works </h3>
+    <ol>
+        <li> Captures Street Address and Zip Code into HTML form (user prompted to input). </li>
+        <li> Builds url using the XML Request format required by USPS.</li>
+        <li> Uses XMLHttpRequest (XHR) object to send request to USPS servers.</li>
+        <li> Receives USPS response using the responseXML property of XHR objects.</li>
+        <li> Parses XML response and places values for City, State, Zip Code Extension into HTML form.</li>
+    </ol>
+    
+    <h3> Links </h3>
+    <a href="https://github.com/bdaisey/addyvalidate" target="_blank">View Source on Github</a>
+    <br>
+    <a href="https://www.usps.com/business/web-tools-apis/address-information-api.htm#_Toc487629494" target="_blank">USPS API Documentation - Address Standardization Web Tool</a>
+    <br>
+    <a href="https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest" target="_blank">Mozilla Developer Network - XMLHttpRequest()</a>
+    <br>
+    <h3> Usage Example </h3>
+    <img src="img/addy_usage_ex.jpg" style="width:800px" alt="Example Validation">
+        
+    
+    <script>
 		
 	validateAddress = function() {
 		var targetZip = document.getElementById("inputZip").value;
@@ -44,9 +70,14 @@
 		// start actual request
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function(){
-			if(this.readyState == 4 && this.status == 200){
-				var xmlDoc = xhttp.responseXML;
-				var xCity = xmlDoc.getElementsByTagName('City')[0];
+			
+            // readyState of 4 means request is done, status of 200 means it executed successfully (found address entered)
+            if(this.readyState == 4 && this.status == 200){
+				// store the response from USPS
+                var xmlDoc = xhttp.responseXML;
+				
+                
+                var xCity = xmlDoc.getElementsByTagName('City')[0];
 				var yCity = xCity.childNodes[0];
 				document.getElementById("inputCity").value = yCity.nodeValue;
 
@@ -65,7 +96,8 @@
 				var demoText = "<h4>ADDRESS VALIDATED WITH USPS!</h4>Street address entered: "+targetStreet+"<br>Zip code entered: "+targetZip;
 				document.getElementById("demo").innerHTML = demoText;
 			}
-			else{
+			// if request was not successful, prompt user to enter a different address
+            else{
 				document.getElementById("demo").innerHTML = "<br>ADDRESS NOT FOUND!<br>Re-enter street address and zip."	
 			}
 		};
