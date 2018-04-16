@@ -33,7 +33,7 @@
 		var targetStreet = document.getElementById("inputStreet").value;
 
 		// yuck - can't see a way around the USPS API req XML in URL
-		var urlStart = "https://production.shippingapis.com/ShippingAPI.dll?API=Verify&XML=";
+		var urlStart = "https://secure.shippingapis.com/ShippingAPI.dll?API=Verify&XML=";
 		var urlSecond = encodeURIComponent('<AddressValidateRequest USERID="444STUDE4782"><Address ID="0"><FirmName /><Address1 /><Address2>');
 		var urlStreet = targetStreet;
 		var urlThird = encodeURIComponent('</Address2><City></City><State></State><Zip5>')
