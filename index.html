@@ -1,0 +1,78 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>Address Completion</title>
+</head>
+
+<body>
+	
+	<h3 align="center">Address Auto-Completion</h3>
+	<p align="center">Enter a street address  &amp; 5-digit zip code. <br> Click the button to autofill and validate with USPS.</p>
+	<form>
+		<table align="center" bgcolor=#DDDDDD>
+		<tr><td align="left">Street Address:</td>
+			<td align="left"><input type="text" id="inputStreet" size="35" placeholder="Enter Street Address"><br></td></tr>
+		<tr><td align="left">City:</td>
+			<td align="left"><input type="text" id="inputCity" size="35"><br></td></tr>
+		<tr><td align="left">State:</td>
+			<td align="left"><input type="text" id="inputState" size="35"><br></td></tr>
+		<tr><td align="left">Zip Code:</td>
+			<td align="left"><input type="text" id="inputZip" size="35" placeholder="Enter 5-digit Zip"></td>
+		<tr><td align="left">Zip Ext:</td>
+			<td align="left"><input type="text" id="inputZipExt" size="35"></td>
+		<tr><td align="center"><input type ="button" id="genValidate" value="Autofill &amp; Validate" onClick="validateAddress()"><br></td></tr>
+		</table>
+	</form>
+	<p id="demo" align="center"></p>
+	<script>
+		
+	validateAddress = function() {
+		var targetZip = document.getElementById("inputZip").value;
+		var targetStreet = document.getElementById("inputStreet").value;
+
+		// yuck - can't see a way around the USPS API req XML in URL
+		var urlStart = "http://production.shippingapis.com/ShippingAPI.dll?API=Verify&XML=";
+		var urlSecond = encodeURIComponent('<AddressValidateRequest USERID="444STUDE4782"><Address ID="0"><FirmName /><Address1 /><Address2>');
+		var urlStreet = targetStreet;
+		var urlThird = encodeURIComponent('</Address2><City></City><State></State><Zip5>')
+		var urlZip = targetZip;
+		var urlEnd = encodeURIComponent('</Zip5><Zip4></Zip4></Address></AddressValidateRequest>');
+		var url = urlStart+urlSecond+urlStreet+urlThird+urlZip+urlEnd;
+
+		// start actual request
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function(){
+			if(this.readyState == 4 && this.status == 200){
+				var xmlDoc = xhttp.responseXML;
+				var xCity = xmlDoc.getElementsByTagName('City')[0];
+				var yCity = xCity.childNodes[0];
+				document.getElementById("inputCity").value = yCity.nodeValue;
+
+				var xState = xmlDoc.getElementsByTagName('State')[0];
+				var yState = xState.childNodes[0];
+				document.getElementById("inputState").value = yState.nodeValue;
+
+				var xZipExt = xmlDoc.getElementsByTagName('Zip4')[0];
+				var yZipExt = xZipExt.childNodes[0];
+				document.getElementById("inputZipExt").value = yZipExt.nodeValue;
+
+				var xStreet = xmlDoc.getElementsByTagName('Address2')[0];
+				var yStreet = xStreet.childNodes[0];
+				document.getElementById("inputStreet").value = yStreet.nodeValue;
+				
+				var demoText = "<h4>ADDRESS VALIDATED WITH USPS!</h4>Street address entered: "+targetStreet+"<br>Zip code entered: "+targetZip;
+				document.getElementById("demo").innerHTML = demoText;
+			}
+			else{
+				document.getElementById("demo").innerHTML = "<br>ADDRESS NOT FOUND!<br>Re-enter street address and zip."	
+			}
+		};
+		xhttp.open("GET",url,true);
+		xhttp.send();
+	}
+
+	</script>
+</body>
+</html>
